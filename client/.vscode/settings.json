@@ -1,0 +1,32 @@
+// {
+//   "eslint.workingDirectories": ["client"],
+//   "editor.codeActionsOnSave": {
+//     "source.fixAll.eslint": true
+//   }
+// }
+
+{
+  "eslint.workingDirectories": ["client"],
+  "eslint.options": {
+    "configFile": ".eslintrc.json"
+  },
+  "eslint.validate": ["javascript", "typescript", "typescriptreact"],
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  }
+}
