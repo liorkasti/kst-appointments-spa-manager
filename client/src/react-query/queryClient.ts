@@ -1,31 +1,44 @@
-import { createStandaloneToast } from '@chakra-ui/react';
-import { QueryClient } from 'react-query';
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 
-const toast = createStandaloneToast();
+import { toast } from "@/components/app/toast";
 
-function queryErrorHandler(error: unknown): void {
-  // error is type unknown because in js, anything can be an error (e.g. throw(5))
-  const title =
-    error instanceof Error ? error.message : 'error connecting to server';
-
-  // prevent duplicate toasts
-  toast.closeAll();
-  toast({ title, status: 'error', variant: 'subtle', isClosable: true });
+function createTitle(errorMsg: string, actionType: "query" | "mutation") {
+  const action = actionType === "query" ? "fetch" : "update";
+  return `could not ${action} data: ${
+    errorMsg ?? "error connecting to server"
+  }`;
 }
 
-// to satisfy typescript until this file has uncommented contents
+function errorHandler(title: string) {
+  // https://chakra-ui.com/docs/components/toast#preventing-duplicate-toast
+  // one message per page load, not one message per query
+  // the user doesn't care that there were three failed queries on the staff page
+  //    (staff, treatments, user)
+  const id = "react-query-toast";
+
+  if (!toast.isActive(id)) {
+    toast({ id, title, status: "error", variant: "subtle", isClosable: true });
+  }
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      onError: queryErrorHandler,
-      staleTime: 6000, // 10 minutes
-      cacheTime: 90000, // 15 minutess
-      refetchOnMount: false,
-      refetchOnReconnect: false,
+      staleTime: 600000, // 10 minutes
+      gcTime: 900000, // 15 minutes
       refetchOnWindowFocus: false,
     },
-    mutations: {
-      onError: queryErrorHandler,
-    },
   },
+  queryCache: new QueryCache({
+    onError: (error) => {
+      const title = createTitle(error.message, "query");
+      errorHandler(title);
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      const title = createTitle(error.message, "mutation");
+      errorHandler(title);
+    },
+  }),
 });
